@@ -1,4 +1,8 @@
 <Solution>
+  <Project Path="../Transactions/Transactions.Api/Transactions.Api.csproj" />
+  <Project Path="../Transactions/Transactions.Application/Transactions.Application.csproj" />
+  <Project Path="../Transactions/Transactions.Domain/Transactions.Domain.csproj" />
+  <Project Path="../Transactions/Transactions.Infrastructure/Transactions.Infrastructure.csproj" />
   <Project Path="Accounts.Api/Accounts.Api.csproj" />
   <Project Path="Accounts.Application.Tests/Accounts.Application.Tests.csproj" />
   <Project Path="Accounts.Application/Accounts.Application.csproj" />

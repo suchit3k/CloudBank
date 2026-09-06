@@ -1,4 +1,6 @@
 ﻿using Accounts.Application.Accounts.Commands.CreateAccount;
+using Accounts.Application.Accounts.Commands.Deposit;
+using Accounts.Application.Accounts.Commands.Withdraw;
 using Accounts.Application.Accounts.Queries.GetAccountById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +37,22 @@ public class AccountsController : ControllerBase
 
         return Ok(account);
     }
+
+    [HttpPost("{id}/deposit")]
+    public async Task<IActionResult> Deposit(Guid id, [FromBody] DepositRequest request, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new DepositCommand(id, request.Amount), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id}/withdraw")]
+    public async Task<IActionResult> Withdraw(Guid id, [FromBody] WithdrawRequest request, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new WithdrawCommand(id, request.Amount), cancellationToken);
+        return NoContent();
+    }
 }
 
 public record CreateAccountRequest(Guid UserId, string AccountType, string Currency = "USD");
+public record DepositRequest(decimal Amount);
+public record WithdrawRequest(decimal Amount);
