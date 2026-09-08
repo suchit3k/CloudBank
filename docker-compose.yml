@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   accounts-db:
     image: postgres:16
@@ -14,5 +12,19 @@ services:
     volumes:
       - accounts_db_data:/var/lib/postgresql/data
 
+  transactions-db:
+    image: postgres:16
+    container_name: cloudbank-transactions-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cloudbank
+      POSTGRES_PASSWORD: cloudbank_dev_pw
+      POSTGRES_DB: transactions_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - transactions_db_data:/var/lib/postgresql/data
+
 volumes:
   accounts_db_data:
+  transactions_db_data:
