@@ -31,11 +31,8 @@ public class TransferMoneyCommandHandler : IRequestHandler<TransferMoneyCommand,
         await _transactionRepository.AddAsync(transaction, cancellationToken);
         await _transactionRepository.SaveChangesAsync(cancellationToken);
 
-        // Step 2: Mark Processing
-        transaction.MarkAsProcessing();
-        await _transactionRepository.SaveChangesAsync(cancellationToken);
 
-        // Step 3: Withdraw from sender
+        // Step 2: Withdraw from sender
         try
         {
             await _accountsServiceClient.WithdrawAsync(request.SenderAccountId, request.Amount, cancellationToken);
@@ -46,6 +43,9 @@ public class TransferMoneyCommandHandler : IRequestHandler<TransferMoneyCommand,
             await _transactionRepository.SaveChangesAsync(cancellationToken);
             return transaction.Id;
         }
+        // Step 3: Mark Processing
+        transaction.MarkAsProcessing();
+        await _transactionRepository.SaveChangesAsync(cancellationToken);
 
         // Step 4: Deposit to receiver
         try
