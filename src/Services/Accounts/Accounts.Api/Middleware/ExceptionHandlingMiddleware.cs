@@ -41,6 +41,10 @@ public class ExceptionHandlingMiddleware
                 HttpStatusCode.NotFound,
                 exception.Message
             ),
+            InvalidOperationException => (
+                HttpStatusCode.BadRequest,
+                exception.Message
+            ),
             ArgumentException => (
                 HttpStatusCode.BadRequest,
                 exception.Message

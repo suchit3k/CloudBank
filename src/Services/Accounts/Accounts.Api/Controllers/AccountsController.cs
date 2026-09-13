@@ -1,5 +1,6 @@
 ﻿using Accounts.Application.Accounts.Commands.CreateAccount;
 using Accounts.Application.Accounts.Commands.Deposit;
+using Accounts.Application.Accounts.Commands.FreezeAccount;
 using Accounts.Application.Accounts.Commands.Withdraw;
 using Accounts.Application.Accounts.Queries.GetAccountById;
 using MediatR;
@@ -49,6 +50,13 @@ public class AccountsController : ControllerBase
     public async Task<IActionResult> Withdraw(Guid id, [FromBody] WithdrawRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new WithdrawCommand(id, request.Amount), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id}/freeze")]
+    public async Task<IActionResult> Freeze(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new FreezeAccountCommand(id), cancellationToken);
         return NoContent();
     }
 }
