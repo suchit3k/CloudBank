@@ -1,6 +1,7 @@
-﻿using Transactions.Application.Transactions.Commands.TransferMoney;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Transactions.Application.Transactions.Commands.TransferMoney;
+using Transactions.Application.Transactions.Queries.GetTransactionById;
 
 namespace Transactions.Api.Controllers;
 
@@ -30,6 +31,14 @@ public class TransactionsController : ControllerBase
         var transactionId = await _mediator.Send(command, cancellationToken);
 
         return Ok(new { transactionId });
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTransaction(Guid id, CancellationToken cancellationToken)
+    {
+        var query = new GetTransactionByIdQuery(id);
+        var transaction = await _mediator.Send(query, cancellationToken);
+        return Ok(transaction);
     }
 }
 

@@ -8,4 +8,5 @@
   <Project Path="Accounts.Application/Accounts.Application.csproj" />
   <Project Path="Accounts.Domain/Accounts.Domain.csproj" />
   <Project Path="Accounts.Infrastructure/Accounts.Infrastructure.csproj" />
+  <Project Path="Transactions.Application.Tests/Transactions.Application.Tests.csproj" Id="6a954180-90c7-4974-a3dd-3f5b0cf8ba07" />
 </Solution>

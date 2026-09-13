@@ -1,4 +1,5 @@
-﻿using Transactions.Application.Persistence;
+﻿using Microsoft.EntityFrameworkCore;
+using Transactions.Application.Persistence;
 using Transactions.Domain;
 
 namespace Transactions.Infrastructure.Persistence;
@@ -20,5 +21,11 @@ public class TransactionRepository : ITransactionRepository
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Transactions
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 }
