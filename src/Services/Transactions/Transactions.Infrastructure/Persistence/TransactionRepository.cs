@@ -28,4 +28,10 @@ public class TransactionRepository : ITransactionRepository
         return await _dbContext.Transactions
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
+
+    public async Task<Transaction?> GetByIdempotencyKeyAsync(Guid idempotencyKey, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Transactions
+            .FirstOrDefaultAsync(t => t.IdempotencyKey == idempotencyKey, cancellationToken);
+    }
 }

@@ -20,6 +20,14 @@ public class TransferMoneyCommandHandler : IRequestHandler<TransferMoneyCommand,
 
     public async Task<Guid> Handle(TransferMoneyCommand request, CancellationToken cancellationToken)
     {
+
+        // Step 0: Idempotency check
+        var existingTransaction = await _transactionRepository.GetByIdempotencyKeyAsync(request.IdempotencyKey, cancellationToken);
+        if (existingTransaction is not null)
+        {
+            return existingTransaction.Id;
+        }
+
         // Step 1: Create Pending transaction record
         var transaction = new Transaction(
             request.SenderAccountId,
