@@ -1,0 +1,29 @@
+{
+  "UserConfig": {
+    "Namespaces": [
+      {
+        "Name": "sbemulatorns",
+        "Queues": [],
+        "Topics": [
+          {
+            "Name": "transaction-events",
+            "Subscriptions": [
+              {
+                "Name": "audit-sub"
+              },
+              {
+                "Name": "notifications-sub"
+              },
+              {
+                "Name": "fraud-detection-sub"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Logging": {
+      "Type": "File"
+    }
+  }
+}

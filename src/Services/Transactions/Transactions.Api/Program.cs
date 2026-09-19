@@ -32,6 +32,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//Service Bus Event Publisher
+var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionString"]!;
+builder.Services.AddSingleton<IEventPublisher>(
+    new ServiceBusEventPublisher(serviceBusConnectionString));
+
 var app = builder.Build();
 
 app.UseMiddleware<Transactions.Api.Middleware.ExceptionHandlingMiddleware>();
