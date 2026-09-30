@@ -48,5 +48,26 @@ public class TransactionDbContext : DbContext
             entity.HasIndex(t => t.SenderAccountId);
             entity.HasIndex(t => t.ReceiverAccountId);
         });
+
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("outbox_messages");
+
+            entity.HasKey(o => o.Id);
+
+            entity.Property(o => o.EventType)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(o => o.Payload)
+                    .IsRequired();
+
+            entity.Property(o => o.CreatedAtUtc).IsRequired();
+            entity.Property(o => o.AttemptCount).IsRequired();
+            entity.Property(o => o.LastError).HasMaxLength(1000);
+
+            // Fast lookup for "give me unpublished messages"
+            entity.HasIndex(o => o.PublishedAtUtc);
+        });
     }
 }
