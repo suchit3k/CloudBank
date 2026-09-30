@@ -3,6 +3,7 @@
 public interface ITransactionRepository
 {
     Task AddAsync(Domain.Transaction transaction, CancellationToken cancellationToken);
+    Task AddOutboxMessageAsync(Domain.OutboxMessage message, CancellationToken cancellationToken);
     Task<Domain.Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<Domain.Transaction?> GetByIdempotencyKeyAsync(Guid idempotencyKey, CancellationToken cancellationToken);
     Task SaveChangesAsync(CancellationToken cancellationToken);

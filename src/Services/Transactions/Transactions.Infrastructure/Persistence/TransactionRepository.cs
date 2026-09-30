@@ -34,4 +34,8 @@ public class TransactionRepository : ITransactionRepository
         return await _dbContext.Transactions
             .FirstOrDefaultAsync(t => t.IdempotencyKey == idempotencyKey, cancellationToken);
     }
+    public async Task AddOutboxMessageAsync(OutboxMessage message, CancellationToken cancellationToken)
+    {
+        await _dbContext.OutboxMessages.AddAsync(message, cancellationToken);
+    }
 }

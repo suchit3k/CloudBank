@@ -13,6 +13,7 @@ public class TransactionDbContext : DbContext
     }
 
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

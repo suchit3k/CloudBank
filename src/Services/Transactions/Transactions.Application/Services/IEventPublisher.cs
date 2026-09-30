@@ -1,8 +1,6 @@
-﻿using Transactions.Application.Events;
-
-namespace Transactions.Application.Services;
+﻿namespace Transactions.Application.Services;
 
 public interface IEventPublisher
 {
-    Task PublishTransactionCompletedAsync(TransactionCompletedEvent @event, CancellationToken cancellationToken);
+    Task PublishAsync(string eventType, string payload, CancellationToken cancellationToken);
 }

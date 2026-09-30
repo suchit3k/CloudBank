@@ -30,6 +30,17 @@ public class ServiceBusEventPublisher : IEventPublisher, IAsyncDisposable
         await _sender.SendMessageAsync(message, cancellationToken);
     }
 
+    public async Task PublishAsync(string eventType, string payload, CancellationToken cancellationToken)
+    {
+        var message = new ServiceBusMessage(payload)
+        {
+            ContentType = "application/json",
+            Subject = eventType
+        };
+
+        await _sender.SendMessageAsync(message, cancellationToken);
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _sender.DisposeAsync();

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Text.Json;
 using Transactions.Application.Events;
 using Transactions.Application.Persistence;
 using Transactions.Application.Services;
@@ -10,16 +11,13 @@ public class TransferMoneyCommandHandler : IRequestHandler<TransferMoneyCommand,
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly IAccountsServiceClient _accountsServiceClient;
-    private readonly IEventPublisher _eventPublisher;
 
     public TransferMoneyCommandHandler(
         ITransactionRepository transactionRepository,
-        IAccountsServiceClient accountsServiceClient,
-        IEventPublisher eventPublisher)
+        IAccountsServiceClient accountsServiceClient)
     {
         _transactionRepository = transactionRepository;
         _accountsServiceClient = accountsServiceClient;
-        _eventPublisher = eventPublisher;
     }
 
     public async Task<Guid> Handle(TransferMoneyCommand request, CancellationToken cancellationToken)
@@ -76,26 +74,23 @@ public class TransferMoneyCommandHandler : IRequestHandler<TransferMoneyCommand,
 
         // Both steps succeeded
         transaction.MarkAsCompleted();
-        await _transactionRepository.SaveChangesAsync(cancellationToken);
 
-        // Publish event AFTER the transaction is durably marked Completed
-        try
-        {
-            await _eventPublisher.PublishTransactionCompletedAsync(
-                new TransactionCompletedEvent(
-                    transaction.Id,
-                    transaction.SenderAccountId,
-                    transaction.ReceiverAccountId,
-                    transaction.Amount,
-                    transaction.Currency,
-                    transaction.CompletedAt!.Value),
-                cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            // Deliberately NOT re-thrown — explained below
-            Console.WriteLine($"Failed to publish TransactionCompletedEvent for {transaction.Id}: {ex.Message}");
-        }
+        var completedEvent = new TransactionCompletedEvent(
+            transaction.Id,
+            transaction.SenderAccountId,
+            transaction.ReceiverAccountId,
+            transaction.Amount,
+            transaction.Currency,
+            transaction.CompletedAt!.Value);
+
+        var outboxMessage = new OutboxMessage(
+            nameof(TransactionCompletedEvent),
+            JsonSerializer.Serialize(completedEvent));
+
+        await _transactionRepository.AddOutboxMessageAsync(outboxMessage, cancellationToken);
+
+        // ONE save: Completed status + outbox row commit together, atomically
+        await _transactionRepository.SaveChangesAsync(cancellationToken);
 
         return transaction.Id;
     }
