@@ -37,6 +37,9 @@ var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionStr
 builder.Services.AddSingleton<IEventPublisher>(
     new ServiceBusEventPublisher(serviceBusConnectionString));
 
+//Add the OutboxPublisherBackgroundService as a hosted service
+builder.Services.AddHostedService<Transactions.Infrastructure.Outbox.OutboxPublisherBackgroundService>();
+
 var app = builder.Build();
 
 app.UseMiddleware<Transactions.Api.Middleware.ExceptionHandlingMiddleware>();
