@@ -25,6 +25,19 @@ services:
     volumes:
       - transactions_db_data:/var/lib/postgresql/data
 
+  audit-db:
+    image: postgres:16
+    container_name: cloudbank-audit-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cloudbank
+      POSTGRES_PASSWORD: cloudbank_dev_pw
+      POSTGRES_DB: audit_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - audit_db_data:/var/lib/postgresql/data
+
   sqledge:
     image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: cloudbank-servicebus-sql
@@ -54,3 +67,4 @@ services:
 volumes:
   accounts_db_data:
   transactions_db_data:
+  audit_db_data:
