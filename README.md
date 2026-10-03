@@ -78,19 +78,20 @@ React Dashboard (Azure Static Web Apps) → API Gateway
 This project is being built incrementally and documented as a learning log. This section reflects what's **actually implemented**, not the end-state vision above.
 
 ### ✅ Done
-- **Accounts service** — Clean Architecture skeleton (Domain / Application / Infrastructure / Api)
-- Domain layer: `Account` entity as a rich domain model (private setters, business rules enforced in methods)
-- Infrastructure: EF Core + Npgsql, `AccountsDbContext` with Fluent API mapping, first migration applied
-- Local PostgreSQL via Docker Compose
-- Full CQRS flow: `CreateAccountCommand` (+ Handler), `GetAccountByIdQuery` (+ Handler), wired through MediatR
-- FluentValidation with an automatic MediatR pipeline behavior (validation runs before every handler, no per-handler boilerplate)
-- Centralized exception-handling middleware (`ValidationException` → 400, `KeyNotFoundException` → 404, unhandled → 500)
-- Local secrets managed via .NET User Secrets (kept out of source control)
+- **Accounts service** — Clean Architecture (Domain / Application / Infrastructure / Api), rich `Account` domain model, EF Core + PostgreSQL
+- Full CQRS via MediatR: create account, get by id, deposit, withdraw, freeze
+- FluentValidation via a MediatR pipeline behavior; centralized exception-handling middleware
+- **Transactions service** — orchestration-based **Saga** for money transfers: withdraw → deposit, with a compensating action (refund the sender) when the deposit fails
+- `Transaction` modelled as a state machine (`Pending → Processing → Completed`, with `Failed` / `Reversed` as distinct failure paths)
+- Idempotent transfers via client-supplied idempotency keys (application check + unique database constraint)
+- **Event-driven communication** — `TransactionCompletedEvent` published to an Azure Service Bus topic with multiple subscriptions (local emulator)
+- **Outbox Pattern** — events saved atomically with the business change and published reliably by a background service; verified to survive a Service Bus outage with no lost events
+- Stable `MessageId` per event occurrence, enabling idempotent consumers
+- **Audit service** (in progress) — database and append-only `AuditEntry` model with a unique `MessageId` constraint
+- Unit tests (xUnit + NSubstitute) for Accounts handlers/validators and the Saga orchestration (happy path + compensation path)
+- Database-per-service: separate PostgreSQL containers for Accounts, Transactions, and Audit
 
 ### 🔜 Planned (in build order)
-- Unit tests (xUnit) for handlers and validators
-- Transactions service + Saga pattern for account-to-account transfers
-- Azure Service Bus integration (event publishing/consuming)
 - Audit service (event log) and Notifications service
 - Redis caching (cache-aside) for balance reads
 - Fraud Detection service (Python/FastAPI + scikit-learn Random Forest classifier)
