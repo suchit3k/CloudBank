@@ -52,6 +52,7 @@ else
     string body = message.Body.ToString();
     Console.WriteLine($"Received message: {body}");
     Console.WriteLine($"Subject: {message.Subject}");
+    Console.WriteLine($"MessageId: {message.MessageId}");
 
     await receiver.CompleteMessageAsync(message);
     Console.WriteLine("Message marked as complete.");

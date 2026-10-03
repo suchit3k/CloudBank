@@ -2,5 +2,5 @@
 
 public interface IEventPublisher
 {
-    Task PublishAsync(string eventType, string payload, CancellationToken cancellationToken);
+    Task PublishAsync(string messageId, string eventType, string payload, CancellationToken cancellationToken);
 }
