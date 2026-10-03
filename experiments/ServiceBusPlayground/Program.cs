@@ -32,7 +32,7 @@ using Azure.Messaging.ServiceBus;
 
 const string connectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
 const string topicName = "transaction-events";
-const string subscriptionName = "audit-sub";
+const string subscriptionName = "notifications-sub";
 
 await using var client = new ServiceBusClient(connectionString);
 Console.WriteLine("Connected to Service Bus.");

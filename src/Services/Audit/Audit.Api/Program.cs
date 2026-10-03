@@ -1,4 +1,6 @@
+using Audit.Infrastructure.Messaging;
 using Audit.Infrastructure.Persistence;
+using Azure.Messaging.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionString"]!;
+builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnectionString));
+builder.Services.AddHostedService<AuditEventConsumer>();
 
 var connectionString = builder.Configuration.GetConnectionString("AuditDb");
 builder.Services.AddDbContext<AuditDbContext>(options =>
