@@ -106,12 +106,12 @@ if (mode == "send")
     ServiceBusSender sender = client.CreateSender(topicName);
     var message = new ServiceBusMessage("{\"TransactionId\":\"00000000-0000-0000-0000-000000000002\",\"Amount\":2,\"Currency\":\"USD\"}")
     {
-        MessageId = "cccccccc-0000-0000-0000-000000000001",
+        MessageId = Guid.NewGuid().ToString(),
         Subject = "TransactionCompletedEvent",
         ContentType = "application/json"
     };
     await sender.SendMessageAsync(message);
-    Console.WriteLine("Sent MessageId cccccccc-0000-0000-0000-000000000001");
+    Console.WriteLine($"Sent MessageId {message.MessageId}");
 }
 else if (mode == "resubmit")
 {

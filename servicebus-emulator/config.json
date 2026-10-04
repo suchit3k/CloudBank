@@ -9,13 +9,34 @@
             "Name": "transaction-events",
             "Subscriptions": [
               {
-                "Name": "audit-sub"
+                "Name": "audit-sub",
+                "Properties": {
+                  "MaxDeliveryCount": 10,
+                  "LockDuration": "PT1M",
+                  "DefaultMessageTimeToLive": "PT1H",
+                  "DeadLetteringOnMessageExpiration": true,
+                  "RequiresSession": false
+                }
               },
               {
-                "Name": "notifications-sub"
+                "Name": "notifications-sub",
+                "Properties": {
+                  "MaxDeliveryCount": 10,
+                  "LockDuration": "PT1M",
+                  "DefaultMessageTimeToLive": "PT1H",
+                  "DeadLetteringOnMessageExpiration": true,
+                  "RequiresSession": false
+                }
               },
               {
-                "Name": "fraud-detection-sub"
+                "Name": "fraud-detection-sub",
+                "Properties": {
+                  "MaxDeliveryCount": 10,
+                  "LockDuration": "PT1M",
+                  "DefaultMessageTimeToLive": "PT1H",
+                  "DeadLetteringOnMessageExpiration": true,
+                  "RequiresSession": false
+                }
               }
             ]
           }
