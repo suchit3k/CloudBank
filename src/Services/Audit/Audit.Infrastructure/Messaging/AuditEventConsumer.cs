@@ -121,8 +121,14 @@ public class AuditEventConsumer : BackgroundService
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Temporary problem (e.g. database down): release the lock so it's redelivered
-            _logger.LogError(ex, "Failed to process message {MessageId}; abandoning for retry.", messageId);
+            // Transient failure: wait (growing with each delivery), then release for redelivery
+            TimeSpan delay = CalculateBackoff(message.DeliveryCount);
+
+            _logger.LogError(ex,
+                "Failed to process message {MessageId} (delivery {DeliveryCount}); retrying in {DelaySeconds}s.",
+                messageId, message.DeliveryCount, delay.TotalSeconds);
+
+            await Task.Delay(delay, args.CancellationToken);
             await args.AbandonMessageAsync(message, cancellationToken: args.CancellationToken);
         }
     }
@@ -133,5 +139,12 @@ public class AuditEventConsumer : BackgroundService
             "Service Bus processor error. Source: {ErrorSource}, Entity: {EntityPath}",
             args.ErrorSource, args.EntityPath);
         return Task.CompletedTask;
+    }
+
+    private static TimeSpan CalculateBackoff(int deliveryCount)
+    {
+        // 2, 4, 8, 16, then capped at 30 seconds
+        double seconds = Math.Pow(2, deliveryCount);
+        return TimeSpan.FromSeconds(Math.Min(seconds, 30));
     }
 }
