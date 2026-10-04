@@ -1,7 +1,9 @@
 using Audit.Infrastructure.Messaging;
 using Audit.Infrastructure.Persistence;
 using Azure.Messaging.ServiceBus;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +17,28 @@ builder.Services.AddHostedService<AuditEventConsumer>();
 
 var connectionString = builder.Configuration.GetConnectionString("AuditDb");
 builder.Services.AddDbContext<AuditDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, npgsql =>
+        npgsql.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null)));
+
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AuditDbContext>(name: "audit-db", tags: new[] { "ready" });
 
 var app = builder.Build();
+
+// Liveness: is the process running? Runs no checks at all.
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+// Readiness: can it do its job? Runs only checks tagged "ready".
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
