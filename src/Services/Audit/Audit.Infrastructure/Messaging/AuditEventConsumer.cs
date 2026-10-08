@@ -1,8 +1,4 @@
-﻿using System.Text.Json;
-using Audit.Domain;
-using Audit.Infrastructure.Persistence;
-using Azure.Messaging.ServiceBus;
-using Microsoft.EntityFrameworkCore;
+﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -62,71 +58,41 @@ public class AuditEventConsumer : BackgroundService
     private async Task HandleMessageAsync(ProcessMessageEventArgs args)
     {
         var message = args.Message;
-        string messageId = message.MessageId;
-        string eventType = message.Subject;
-        string payload = message.Body.ToString();
-
-        // 1. Poison-message checks: these will never succeed, so retrying is pointless
-        if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(eventType))
-        {
-            await args.DeadLetterMessageAsync(message, "MissingMetadata",
-                "Message has no MessageId or Subject.", args.CancellationToken);
-            _logger.LogWarning("Dead-lettered message with missing metadata.");
-            return;
-        }
-
-        try
-        {
-            JsonDocument.Parse(payload).Dispose();
-        }
-        catch (JsonException ex)
-        {
-            await args.DeadLetterMessageAsync(message, "InvalidPayload", ex.Message, args.CancellationToken);
-            _logger.LogWarning("Dead-lettered message {MessageId}: payload is not valid JSON.", messageId);
-            return;
-        }
 
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
+            var handler = scope.ServiceProvider.GetRequiredService<AuditMessageHandler>();
 
-            // 2. Idempotency check: have we already stored this event occurrence?
-            bool alreadyStored = await dbContext.AuditEntries
-                .AnyAsync(a => a.MessageId == messageId, args.CancellationToken);
+            var result = await handler.HandleAsync(
+                message.MessageId, message.Subject, message.Body.ToString(), args.CancellationToken);
 
-            if (alreadyStored)
+            switch (result.Outcome)
             {
-                _logger.LogInformation("Duplicate message {MessageId} ignored.", messageId);
-                await args.CompleteMessageAsync(message, args.CancellationToken);
-                return;
-            }
+                case AuditHandlingOutcome.Stored:
+                    _logger.LogInformation("Stored audit entry for {EventType} (MessageId {MessageId}).",
+                        message.Subject, message.MessageId);
+                    await args.CompleteMessageAsync(message, args.CancellationToken);
+                    break;
 
-            // 3. Save first...
-            dbContext.AuditEntries.Add(new AuditEntry(messageId, eventType, payload));
+                case AuditHandlingOutcome.Duplicate:
+                    _logger.LogInformation("Duplicate message {MessageId} ignored.", message.MessageId);
+                    await args.CompleteMessageAsync(message, args.CancellationToken);
+                    break;
 
-            try
-            {
-                await dbContext.SaveChangesAsync(args.CancellationToken);
-                _logger.LogInformation("Stored audit entry for {EventType} (MessageId {MessageId}).", eventType, messageId);
+                case AuditHandlingOutcome.InvalidMessage:
+                    _logger.LogWarning("Dead-lettering message {MessageId}: {Reason}.", message.MessageId, result.Reason);
+                    await args.DeadLetterMessageAsync(message, result.Reason!, result.Description, args.CancellationToken);
+                    break;
             }
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-            {
-                // Safety net: another copy was saved between our check and our insert
-                _logger.LogInformation("Duplicate message {MessageId} caught by unique constraint.", messageId);
-            }
-
-            // 4. ...then complete (at-least-once)
-            await args.CompleteMessageAsync(message, args.CancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Transient failure: wait (growing with each delivery), then release for redelivery
             TimeSpan delay = CalculateBackoff(message.DeliveryCount);
 
             _logger.LogError(ex,
                 "Failed to process message {MessageId} (delivery {DeliveryCount}); retrying in {DelaySeconds}s.",
-                messageId, message.DeliveryCount, delay.TotalSeconds);
+                message.MessageId, message.DeliveryCount, delay.TotalSeconds);
 
             await Task.Delay(delay, args.CancellationToken);
             await args.AbandonMessageAsync(message, cancellationToken: args.CancellationToken);

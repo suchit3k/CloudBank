@@ -28,69 +28,73 @@
 
 //////Console.WriteLine($"Sent message: {json}");
 
-////using Azure.Messaging.ServiceBus;
-
-////const string connectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
-////const string topicName = "transaction-events";
-////const string subscriptionName = "notifications-sub";
-
-////await using var client = new ServiceBusClient(connectionString);
-////Console.WriteLine("Connected to Service Bus.");
-
-////ServiceBusReceiver receiver = client.CreateReceiver(topicName, subscriptionName);
-
-////Console.WriteLine("Waiting for a message...");
-
-////ServiceBusReceivedMessage message = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(30));
-
-////if (message is null)
-////{
-////    Console.WriteLine("No message received within 30 seconds.");
-////}
-////else
-////{
-////    string body = message.Body.ToString();
-////    Console.WriteLine($"Received message: {body}");
-////    Console.WriteLine($"Subject: {message.Subject}");
-////    Console.WriteLine($"MessageId: {message.MessageId}");
-
-////    await receiver.CompleteMessageAsync(message);
-////    Console.WriteLine("Message marked as complete.");
-////}
-
+/* RECIVER */
 //using Azure.Messaging.ServiceBus;
 
 //const string connectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
 //const string topicName = "transaction-events";
+//const string subscriptionName = "notifications-sub";
 
 //await using var client = new ServiceBusClient(connectionString);
-//ServiceBusSender sender = client.CreateSender(topicName);
+//Console.WriteLine("Connected to Service Bus.");
 
-//const string validPayload = "{\"TransactionId\":\"00000000-0000-0000-0000-000000000001\",\"Amount\":1,\"Currency\":\"USD\"}";
+//ServiceBusReceiver receiver = client.CreateReceiver(topicName, subscriptionName);
 
-//// Test A: re-send an event Audit has ALREADY stored (paste the real MessageId)
-//await SendAsync("d2180438-33eb-4b34-bee0-960dfd4630ba", validPayload);
+//Console.WriteLine("Waiting for a message...");
 
-//// Test B: a brand-new event, sent TWICE with the same MessageId
-//await SendAsync("aaaaaaaa-0000-0000-0000-000000000001", validPayload);
-//await SendAsync("aaaaaaaa-0000-0000-0000-000000000001", validPayload);
+//ServiceBusReceivedMessage message = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(30));
 
-//// Test C: a poison message (payload is not valid JSON)
-//await SendAsync("bbbbbbbb-0000-0000-0000-000000000001", "this is not json");
-
-//Console.WriteLine("All test messages sent.");
-
-//async Task SendAsync(string messageId, string payload)
+//if (message is null)
 //{
-//    var message = new ServiceBusMessage(payload)
-//    {
-//        MessageId = messageId,
-//        Subject = "TransactionCompletedEvent",
-//        ContentType = "application/json"
-//    };
-//    await sender.SendMessageAsync(message);
-//    Console.WriteLine($"Sent MessageId {messageId}");
+//    Console.WriteLine("No message received within 30 seconds.");
 //}
+//else
+//{
+//    string body = message.Body.ToString();
+//    Console.WriteLine($"Received message: {body}");
+//    Console.WriteLine($"Subject: {message.Subject}");
+//    Console.WriteLine($"MessageId: {message.MessageId}");
+
+//    await receiver.CompleteMessageAsync(message);
+//    Console.WriteLine("Message marked as complete.");
+//}
+
+////using Azure.Messaging.ServiceBus;
+
+////const string connectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
+////const string topicName = "transaction-events";
+
+////await using var client = new ServiceBusClient(connectionString);
+////ServiceBusSender sender = client.CreateSender(topicName);
+
+////const string validPayload = "{\"TransactionId\":\"00000000-0000-0000-0000-000000000001\",\"Amount\":1,\"Currency\":\"USD\"}";
+
+////// Test A: re-send an event Audit has ALREADY stored (paste the real MessageId)
+////await SendAsync("d2180438-33eb-4b34-bee0-960dfd4630ba", validPayload);
+
+////// Test B: a brand-new event, sent TWICE with the same MessageId
+////await SendAsync("aaaaaaaa-0000-0000-0000-000000000001", validPayload);
+////await SendAsync("aaaaaaaa-0000-0000-0000-000000000001", validPayload);
+
+////// Test C: a poison message (payload is not valid JSON)
+////await SendAsync("bbbbbbbb-0000-0000-0000-000000000001", "this is not json");
+
+////Console.WriteLine("All test messages sent.");
+
+////async Task SendAsync(string messageId, string payload)
+////{
+////    var message = new ServiceBusMessage(payload)
+////    {
+////        MessageId = messageId,
+////        Subject = "TransactionCompletedEvent",
+////        ContentType = "application/json"
+////    };
+////    await sender.SendMessageAsync(message);
+////    Console.WriteLine($"Sent MessageId {messageId}");
+////}
+
+
+/* Dead Letter Queue (DLQ) inspection and resubmission */
 using Azure.Messaging.ServiceBus;
 
 const string connectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";

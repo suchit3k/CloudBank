@@ -26,6 +26,10 @@ builder.Services.AddDbContext<AuditDbContext>(options =>
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AuditDbContext>(name: "audit-db", tags: new[] { "ready" });
 
+
+builder.Services.AddScoped<IAuditEntryStore, EfAuditEntryStore>();
+builder.Services.AddScoped<AuditMessageHandler>();
+
 var app = builder.Build();
 
 // Liveness: is the process running? Runs no checks at all.
