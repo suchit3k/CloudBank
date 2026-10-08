@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Accounts/">
+    <Project Path="src/Services/Accounts/Accounts.Api/Accounts.Api.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Application.Tests/Accounts.Application.Tests.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Application/Accounts.Application.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Domain/Accounts.Domain.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Infrastructure/Accounts.Infrastructure.csproj" />
+    <Project Path="src/Services/Accounts/Transactions.Application.Tests/Transactions.Application.Tests.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Audit/">
+    <Project Path="src/Services/Audit/Audit.Api/Audit.Api.csproj" />
+    <Project Path="src/Services/Audit/Audit.Domain/Audit.Domain.csproj" />
+    <Project Path="src/Services/Audit/Audit.Infrastructure.IntegrationTests/Audit.Infrastructure.IntegrationTests.csproj" />
+    <Project Path="src/Services/Audit/Audit.Infrastructure.Tests/Audit.Infrastructure.Tests.csproj" />
+    <Project Path="src/Services/Audit/Audit.Infrastructure/Audit.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Transactions/">
+    <Project Path="src/Services/Transactions/Transactions.Api/Transactions.Api.csproj" />
+    <Project Path="src/Services/Transactions/Transactions.Application/Transactions.Application.csproj" />
+    <Project Path="src/Services/Transactions/Transactions.Domain/Transactions.Domain.csproj" />
+    <Project Path="src/Services/Transactions/Transactions.Infrastructure/Transactions.Infrastructure.csproj" />
+  </Folder>
+</Solution>

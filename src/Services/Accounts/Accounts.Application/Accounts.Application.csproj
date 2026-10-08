@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Accounts.Domain\Accounts.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="MediatR" />
   </ItemGroup>
 
   <PropertyGroup>
