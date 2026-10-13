@@ -2,4 +2,4 @@
 
 namespace Accounts.Application.Accounts.Commands.Deposit;
 
-public record DepositCommand(Guid AccountId, decimal Amount) : IRequest;
+public record DepositCommand(Guid AccountId, decimal Amount, string OperationId) : IRequest;

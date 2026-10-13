@@ -42,14 +42,14 @@ public class AccountsController : ControllerBase
     [HttpPost("{id}/deposit")]
     public async Task<IActionResult> Deposit(Guid id, [FromBody] DepositRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DepositCommand(id, request.Amount), cancellationToken);
+        await _mediator.Send(new DepositCommand(id, request.Amount, request.OperationId), cancellationToken);
         return NoContent();
     }
 
     [HttpPost("{id}/withdraw")]
     public async Task<IActionResult> Withdraw(Guid id, [FromBody] WithdrawRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new WithdrawCommand(id, request.Amount), cancellationToken);
+        await _mediator.Send(new WithdrawCommand(id, request.Amount, request.OperationId), cancellationToken);
         return NoContent();
     }
 
@@ -62,5 +62,5 @@ public class AccountsController : ControllerBase
 }
 
 public record CreateAccountRequest(Guid UserId, string AccountType, string Currency = "USD");
-public record DepositRequest(decimal Amount);
-public record WithdrawRequest(decimal Amount);
+public record DepositRequest(decimal Amount, string OperationId);
+public record WithdrawRequest(decimal Amount, string OperationId);

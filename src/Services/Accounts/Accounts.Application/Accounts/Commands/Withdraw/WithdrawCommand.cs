@@ -2,4 +2,4 @@
 
 namespace Accounts.Application.Accounts.Commands.Withdraw;
 
-public record WithdrawCommand(Guid AccountId, decimal Amount) : IRequest;
+public record WithdrawCommand(Guid AccountId, decimal Amount, string OperationId) : IRequest;

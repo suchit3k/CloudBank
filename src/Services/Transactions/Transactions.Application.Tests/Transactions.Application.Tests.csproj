@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Transactions\Transactions.Application\Transactions.Application.csproj" />
+    <ProjectReference Include="..\Transactions.Application\Transactions.Application.csproj" />
+    <ProjectReference Include="..\Transactions.Domain\Transactions.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

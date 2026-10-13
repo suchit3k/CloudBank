@@ -1,6 +1,7 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using Accounts.Application.Accounts.Commands;
 using FluentValidation;
+using System.Net;
+using System.Text.Json;
 
 namespace Accounts.Api.Middleware;
 
@@ -39,6 +40,10 @@ public class ExceptionHandlingMiddleware
             ),
             KeyNotFoundException => (
                 HttpStatusCode.NotFound,
+                exception.Message
+            ),
+            OperationConflictException => (
+                HttpStatusCode.Conflict,
                 exception.Message
             ),
             InvalidOperationException => (

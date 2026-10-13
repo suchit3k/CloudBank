@@ -29,7 +29,7 @@ public class Account
         IsFrozen = false;
     }
 
-    public void Deposit(decimal amount)
+    public AccountOperation Deposit(decimal amount, string operationId)
     {
         if (amount <= 0)
             throw new ArgumentException("Deposit amount must be positive.");
@@ -37,9 +37,10 @@ public class Account
             throw new InvalidOperationException("Cannot deposit into a frozen account.");
 
         Balance += amount;
+        return new AccountOperation(Id, operationId, AccountOperationType.Credit, amount);
     }
 
-    public void Withdraw(decimal amount)
+    public AccountOperation Withdraw(decimal amount, string operationId)
     {
         if (amount <= 0)
             throw new ArgumentException("Withdrawal amount must be positive.");
@@ -49,6 +50,7 @@ public class Account
             throw new InvalidOperationException("Insufficient funds.");
 
         Balance -= amount;
+        return new AccountOperation(Id, operationId, AccountOperationType.Debit, amount);
     }
 
     public void Freeze() => IsFrozen = true;
